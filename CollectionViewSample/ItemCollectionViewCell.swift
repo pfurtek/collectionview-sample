@@ -10,6 +10,7 @@ import UIKit
 
 class ItemCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var lengthLabel: UILabel!
     
     var deleteAction: ()->Void = {}
     

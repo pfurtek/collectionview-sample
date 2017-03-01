@@ -30,8 +30,8 @@ class ItemModel {
         items.append(newItem)
     }*/
     
-    func addItem(with image: UIImage) {
-        let newItem = Item(image: image)
+    func addItem(with url: URL) {
+        let newItem = Item(url: url)
         items.append(newItem)
     }
     
@@ -49,10 +49,11 @@ class ItemModel {
 }
 
 class Item {
-    var image: UIImage
+    //var image: UIImage
+    var url: URL
     
-    init(image: UIImage) {
-        self.image = image
+    init(url: URL) {
+        self.url = url
     }
     
 }

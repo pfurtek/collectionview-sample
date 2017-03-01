@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import MobileCoreServices
+import AVFoundation
 
 private let reuseAddIdentifier = "addCell"
 private let reuseItemIdentifier = "itemCell"
@@ -45,6 +47,7 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
         let picker = UIImagePickerController()
 //        picker.allowsEditing = true
         picker.delegate = self
+        picker.mediaTypes = [kUTTypeMovie as String]
 //        picker.modalPresentationStyle = .
         self.present(picker, animated: true)
     }
@@ -54,21 +57,26 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
     }
     
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
-        var newImage: UIImage
+        //var newImage: UIImage
+
+        let videoURL = info["UIImagePickerControllerReferenceURL"] as? URL
+        //print(videoURL)
         
+        /*
         if let possibleImage = info["UIImagePickerControllerEditedImage"] as? UIImage {
             newImage = possibleImage
         } else if let possibleImage = info["UIImagePickerControllerOriginalImage"] as? UIImage {
             newImage = possibleImage
         } else {
             return
-        }
+        }*/
         
         // do something interesting here!
-        print(newImage.size)
-        ItemModel.shared.addItem(with: newImage)
-        self.collectionView?.reloadData()
-        
+        //print(newImage.size)
+        if let url = videoURL {
+            ItemModel.shared.addItem(with: url)
+            self.collectionView?.reloadData()
+        }
         dismiss(animated: true)
     }
 
@@ -100,7 +108,22 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseItemIdentifier, for: indexPath) as! ItemCollectionViewCell
             
             let item = ItemModel.shared.item(at: indexPath.row - 1)
-            cell.imageView.image = item.image
+            
+            let asset = AVURLAsset(url: item.url, options: nil)
+            let imgGenerator = AVAssetImageGenerator(asset: asset)
+            imgGenerator.appliesPreferredTrackTransform = true
+            do {
+                let cgImage = try imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
+                cell.imageView.image = UIImage(cgImage: cgImage)
+            } catch {
+                
+            }
+            
+            let duration = asset.duration
+            let seconds = Int(duration.value) / Int(duration.timescale)
+            cell.lengthLabel.text = "📹: \(seconds/60):\(String(format: "%02d", seconds%60))"
+            
+            
             
             cell.deleteAction = {
                 ItemModel.shared.removeItem(at: indexPath.row - 1)
@@ -175,7 +198,7 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
             + (flowLayout.minimumInteritemSpacing * CGFloat(numberOfItemsPerRow - 1))
             + CGFloat(20)
         let width = Int((collectionView.bounds.width - totalSpace) / CGFloat(numberOfItemsPerRow))
-        return CGSize(width: width, height: width*4/3)
+        return CGSize(width: width, height: width*16/9)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {

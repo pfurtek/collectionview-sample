@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16B2555" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="KLb-aS-AgI">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="KLb-aS-AgI">
     <device id="retina4_0" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -89,7 +90,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="110" height="197"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="edN-h5-Vul">
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="edN-h5-Vul">
                                             <rect key="frame" x="0.0" y="0.0" width="110" height="197"/>
                                         </imageView>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="v7J-Ll-dXh">
@@ -100,17 +101,26 @@
                                             </constraints>
                                             <state key="normal" title="X">
                                                 <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <color key="titleShadowColor" red="0.062745101750000004" green="0.0" blue="0.1921568662" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                             </state>
                                             <connections>
                                                 <action selector="deleteClicked:" destination="UmP-HZ-fFV" eventType="touchUpInside" id="eQI-Pn-cCY"/>
                                             </connections>
                                         </button>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CzM-he-at2">
+                                            <rect key="frame" x="8" y="173" width="42" height="16"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
                                     </subviews>
                                 </view>
-                                <color key="backgroundColor" red="1" green="1" blue="0.48255750868055558" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
+                                    <constraint firstItem="CzM-he-at2" firstAttribute="bottom" secondItem="UmP-HZ-fFV" secondAttribute="bottomMargin" id="0sO-UV-PDq"/>
                                     <constraint firstAttribute="trailing" secondItem="v7J-Ll-dXh" secondAttribute="trailing" id="3th-WQ-D5Q"/>
                                     <constraint firstItem="edN-h5-Vul" firstAttribute="top" secondItem="UmP-HZ-fFV" secondAttribute="top" id="FMz-3E-g7H"/>
+                                    <constraint firstItem="CzM-he-at2" firstAttribute="leading" secondItem="UmP-HZ-fFV" secondAttribute="leadingMargin" id="K3h-9l-TJP"/>
                                     <constraint firstAttribute="bottom" secondItem="edN-h5-Vul" secondAttribute="bottom" id="QQr-f0-aEd"/>
                                     <constraint firstAttribute="trailing" secondItem="edN-h5-Vul" secondAttribute="trailing" id="YEh-gp-01B"/>
                                     <constraint firstItem="edN-h5-Vul" firstAttribute="leading" secondItem="UmP-HZ-fFV" secondAttribute="leading" id="v1p-iy-9Ui"/>
@@ -119,6 +129,7 @@
                                 <size key="customSize" width="110" height="197"/>
                                 <connections>
                                     <outlet property="imageView" destination="edN-h5-Vul" id="YWy-PX-pnJ"/>
+                                    <outlet property="lengthLabel" destination="CzM-he-at2" id="c7h-Tx-dPi"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
