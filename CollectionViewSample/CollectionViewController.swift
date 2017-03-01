@@ -123,11 +123,10 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
             let seconds = Int(duration.value) / Int(duration.timescale)
             cell.lengthLabel.text = "📹: \(seconds/60):\(String(format: "%02d", seconds%60))"
             
-            
-            
             cell.deleteAction = {
-                ItemModel.shared.removeItem(at: indexPath.row - 1)
-                self.collectionView?.reloadData()
+                let index = self.collectionView?.indexPath(for: cell)?.row
+                ItemModel.shared.removeItem(at: index! - 1)
+                self.collectionView?.deleteItems(at: [IndexPath(row: index!, section: indexPath.section)])
             }
             
             return cell
@@ -187,6 +186,7 @@ class CollectionViewController: UICollectionViewController, UICollectionViewDele
     
     override func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         ItemModel.shared.moveItem(from: sourceIndexPath.row - 1, to: destinationIndexPath.row - 1)
+        //self.collectionView?.reloadData()
     }
     
     

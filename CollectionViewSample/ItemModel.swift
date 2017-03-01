@@ -36,11 +36,14 @@ class ItemModel {
     }
     
     func removeItem(at index: Int) {
+        print("remove\(index)")
         items.remove(at: index)
     }
-    
+        
     func moveItem(from oldIndex: Int, to newIndex: Int) {
-        items.insert(items.remove(at: oldIndex), at: newIndex)
+        print("move from \(oldIndex) to \(newIndex)")
+        let elem = items.remove(at: oldIndex)
+        items.insert(elem, at: newIndex)
     }
     
     func item(at index: Int) -> Item {
