@@ -7,10 +7,11 @@
 //
 
 import UIKit
+import AVKit
+import AVFoundation
+import SCRecorder
 
 private let singleton: ItemModel = ItemModel()
-
-//private let images: [String] = ["eggs", "pizza", "quesadilla"]
 
 class ItemModel {
     class var shared: ItemModel {
@@ -23,15 +24,13 @@ class ItemModel {
     
     var items: [Item] = []
     
-    /*func addItem() {
-        let rand = Int(Date().timeIntervalSince1970*60)%3
-        let image = images[rand]
-        let newItem = Item(image: image)
+    func addVideo(with image: UIImage, url: URL, duration: Int, session: SCRecordSession?, player: AVPlayer) {
+        let newItem = VideoItem(image: image, url: url, duration: duration, session: session, player: player)
         items.append(newItem)
-    }*/
+    }
     
-    func addItem(with url: URL) {
-        let newItem = Item(url: url)
+    func addImage(with image: UIImage) {
+        let newItem = ImageItem(image: image)
         items.append(newItem)
     }
     
@@ -51,12 +50,31 @@ class ItemModel {
     }
 }
 
-class Item {
-    //var image: UIImage
-    var url: URL
+protocol Item {
+    var image: UIImage {get set}
+}
+
+class ImageItem: Item {
+    internal var image: UIImage
+
     
-    init(url: URL) {
-        self.url = url
+    init(image: UIImage) {
+        self.image = image
     }
+}
+
+class VideoItem: Item {
+    internal var image: UIImage
+    var duration: Int
+    var url: URL
+    var player: AVPlayer
+    var session: SCRecordSession?
     
+    init(image: UIImage, url: URL, duration: Int, session: SCRecordSession?, player: AVPlayer) {
+        self.image = image
+        self.url = url
+        self.duration = duration
+        self.session = session
+        self.player = player
+    }
 }

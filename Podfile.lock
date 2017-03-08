@@ -1,0 +1,15 @@
+PODS:
+  - Fusuma (1.0.0)
+  - SCRecorder (2.7.0)
+
+DEPENDENCIES:
+  - Fusuma
+  - SCRecorder
+
+SPEC CHECKSUMS:
+  Fusuma: c95c1c999c765f5dc907670be569157372ff33c4
+  SCRecorder: bbb521dbc222908876ec9cd9156bbc8a893bed44
+
+PODFILE CHECKSUM: 27ea2052c1fff9c8741f8941eb65f57378ad26d0
+
+COCOAPODS: 1.2.0
