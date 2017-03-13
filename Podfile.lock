@@ -1,15 +1,21 @@
 PODS:
+  - Alamofire (4.2.0)
   - Fusuma (1.0.0)
+  - IGListKit (2.0.0)
   - SCRecorder (2.7.0)
 
 DEPENDENCIES:
+  - Alamofire
   - Fusuma
+  - IGListKit (~> 2.0.0)
   - SCRecorder
 
 SPEC CHECKSUMS:
+  Alamofire: aa2e09d871c9160ac53c90e83c68064a94e3dfbe
   Fusuma: c95c1c999c765f5dc907670be569157372ff33c4
+  IGListKit: ee255e4e61865bc3e01ca96b690c5435c2887849
   SCRecorder: bbb521dbc222908876ec9cd9156bbc8a893bed44
 
-PODFILE CHECKSUM: 27ea2052c1fff9c8741f8941eb65f57378ad26d0
+PODFILE CHECKSUM: a8450308130bf6ed0d00a482a2ee4d087d0ebbaa
 
 COCOAPODS: 1.2.0

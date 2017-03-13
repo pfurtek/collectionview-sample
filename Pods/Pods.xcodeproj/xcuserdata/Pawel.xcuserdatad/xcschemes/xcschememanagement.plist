@@ -4,7 +4,17 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>Alamofire.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Fusuma.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>IGListKit.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -42,17 +52,27 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>4C51A65A3E1D9ED7140B9B59520AC4B2</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>65C0BD8B2C493DFD18468FBE988652A2</key>
+		<key>5BA2E9276D2CFBFA8F6143F0AA9354A7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>788F758D5AC06F8B9F1A4D46A2165518</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>88E9EC28B8B46C3631E6B242B50F4442</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9D781EB30AA915DF5F4DD7F2BB2A2CA3</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>EAB7CFD542EE44F801FF78C2C427D10D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
