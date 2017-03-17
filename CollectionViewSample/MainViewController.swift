@@ -168,8 +168,6 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAda
     
     func backToMain(_ sender: UIBarButtonItem) {
         self.isDetail = false
-        self.collectionView.isPagingEnabled = false
-        self.collectionView.isScrollEnabled = true
         self.navigationItem.leftBarButtonItem = nil
         
         if let mySection = self.adapter.sectionController(for: self.detailItem!) as? RestaurantSectionController {
@@ -192,6 +190,8 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAda
                     mySection.adapter.performUpdates(animated: true, completion: nil)
                 }, completion: { (result) in
                     mySection.adapter.collectionView!.isScrollEnabled = false
+                    self.collectionView.isPagingEnabled = false
+                    self.collectionView.isScrollEnabled = true
                     self.navigationController?.navigationBar.topItem?.title = "SnackChat"
                 })
             }

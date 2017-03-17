@@ -31,7 +31,7 @@ class RestaurantSectionController: IGListSectionController, IGListSectionType, I
     
     deinit {
         for task in tasks {
-            //task.cancel()
+            task.cancel()
         }
     }
     

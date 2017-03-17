@@ -60,7 +60,7 @@ class RestPhotoSectionController: IGListSectionController, IGListSectionType {
                 
                 main.adapter.scroll(to: main.detailItem!, supplementaryKinds: nil, scrollDirection: .vertical, scrollPosition: .top, animated: false)
                 
-                self.parentAdapter?.performUpdates(animated: false, completion: { (result) in
+                self.parentAdapter?.performUpdates(animated: true, completion: { (result) in
                 })
             }, completion: { (result) in
                 main.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .done, target: main, action: #selector(MainViewController.backToMain(_:)))
