@@ -24,7 +24,7 @@ class RestNameSectionController: IGListSectionController, IGListSectionType {
     func cellForItem(at index: Int) -> UICollectionViewCell {
         let cell = collectionContext!.dequeueReusableCell(of: DetailLabelCell.self, for: self, at: index) as! DetailLabelCell
         cell.titleLabel.text = item?.name
-        cell.detailLabel.text = (item?.rating?.description ?? "")
+        cell.detailLabel.text = (item?.twitter ?? "")
         return cell
     }
     

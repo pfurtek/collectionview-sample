@@ -12,26 +12,26 @@ import CoreLocation
 
 class RestMapSectionController: IGListSectionController, IGListSectionType {
     
-    var item: RestaurantItem?
+    var location: RestaurantCoordinate?
     
     func numberOfItems() -> Int {
         return 1
     }
     
     func sizeForItem(at index: Int) -> CGSize {
-        return CGSize(width: collectionContext!.containerSize.width, height: (self.item == nil ? 0 : 150))
+        return CGSize(width: collectionContext!.containerSize.width, height: (self.location == nil ? 0 : 250))
     }
     
     func cellForItem(at index: Int) -> UICollectionViewCell {
         let cell = collectionContext!.dequeueReusableCell(of: MapCell.self, for: self, at: index) as! MapCell
-        if let location = self.item?.coordinates {
-            cell.setLocation(coordinates: location)
+        if let loc = location {
+            cell.setLocation(coordinates: loc)
         }
         return cell
     }
     
     func didUpdate(to object: Any) {
-        self.item = object as? RestaurantItem
+        self.location = object as? RestaurantCoordinate
     }
     
     func didSelectItem(at index: Int) {}

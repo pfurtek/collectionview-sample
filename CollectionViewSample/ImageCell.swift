@@ -31,7 +31,7 @@ class ImageCell: UICollectionViewCell {
     }()
     
     fileprivate let paddingx: CGFloat = 0.0
-    fileprivate let paddingy: CGFloat = 5.0
+    fileprivate let paddingy: CGFloat = 0.0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -58,5 +58,6 @@ class ImageCell: UICollectionViewCell {
             activityView.startAnimating()
         }
     }
+    
     
 }

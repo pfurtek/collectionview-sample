@@ -39,12 +39,25 @@ class DetailLabelCell: UICollectionViewCell {
         self.contentView.addSubview(view)
         return view
     }()
+    
+    lazy var background: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.alpha = 0.3
+        self.contentView.addSubview(view)
+        return view
+    }()
 
     override func layoutSubviews() {
         super.layoutSubviews()
         let frame = contentView.bounds.insetBy(dx: padding, dy: 0)
         titleLabel.frame = frame
         detailLabel.frame = frame
+        background.frame = contentView.bounds
+        self.sendSubview(toBack: background)
     }
+    
+    
+    
 
 }

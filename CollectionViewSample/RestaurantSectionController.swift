@@ -10,21 +10,29 @@
 import Foundation
 import IGListKit
 
-class RestaurantSectionController: IGListSectionController, IGListSectionType, IGListWorkingRangeDelegate {
+let kPhotoProportion = 1.4
+
+class RestaurantSectionController: IGListSectionController, IGListSectionType, IGListAdapterDataSource, IGListWorkingRangeDelegate {
     
     var item: RestaurantItem?
-    var objects: [String] = []
-    var downloadedImage: UIImage?
-    var task: URLSessionDataTask?
+    var detailObjects: DetailObjects?
+    var mainObjects: MainObjects?
+    var tasks: [URLSessionDataTask] = []
     
-    var urlString: String? {
-        guard let item = item, let url = item.photo
-            else { return nil }
-        return url
-    }
+    var navBarBackImage: UIImage?
+    
+    lazy var adapter: IGListAdapter = {
+        let adapter = IGListAdapter(updater: IGListAdapterUpdater(),
+                                    viewController: self.viewController,
+                                    workingRangeSize: 0)
+        adapter.dataSource = self
+        return adapter
+    }()
     
     deinit {
-        task?.cancel()
+        for task in tasks {
+            //task.cancel()
+        }
     }
     
     override init() {
@@ -33,106 +41,158 @@ class RestaurantSectionController: IGListSectionController, IGListSectionType, I
     }
     
     func numberOfItems() -> Int {
-        return self.objects.count
+        return 1
     }
     
     func sizeForItem(at index: Int) -> CGSize {
-        let obj = self.objects[index]
-        switch obj {
-            case "name":
-                return CGSize(width: collectionContext!.containerSize.width, height: 25)
-            case "type":
-                return CGSize(width: collectionContext!.containerSize.width, height: 20)
-            case "photo":
-                let width: CGFloat = collectionContext?.containerSize.width ?? 0
-                let height: CGFloat = (self.item?.hPerW == nil) ? 0 : CGFloat(self.item!.hPerW! * Double(width))
-                return CGSize(width: width, height: height)
-            case "location":
-                return CGSize(width: collectionContext!.containerSize.width, height: 130)
-            default:
-                return CGSize(width: collectionContext!.containerSize.width, height: 0)
-            
+        print("size for item")
+        
+        if (viewController as? MainViewController)?.isDetail ?? false,
+           (viewController as? MainViewController)?.detailItem?.isEqual(toDiffableObject: self.item) ?? false {
+            return collectionContext!.containerSize
         }
+        let height = Double(collectionContext!.containerSize.width)/kPhotoProportion
+        return CGSize(width: collectionContext!.containerSize.width, height: CGFloat(height))
+        
     }
     
     func cellForItem(at index: Int) -> UICollectionViewCell {
-        let obj = self.objects[index]
+        let cell = collectionContext!.dequeueReusableCell(of: RestaurantEmbeddedCollectionCell.self, for: self, at: index) as! RestaurantEmbeddedCollectionCell
+        adapter.collectionView = cell.collectionView
         
-        switch obj {
-            case "name":
-                let cell = collectionContext!.dequeueReusableCell(of: DetailLabelCell.self, for: self, at: index) as! DetailLabelCell
-                cell.titleLabel.text = item?.name
-                cell.detailLabel.text = (item?.rating?.description ?? "")
-                return cell
-            case "type":
-                let cell = collectionContext!.dequeueReusableCell(of: TypeLabelCell.self, for: self, at: index) as! TypeLabelCell
-                cell.titleLabel.text = self.item?.type
-                return cell
-            case "photo":
-                let cell = collectionContext!.dequeueReusableCell(of: ImageCell.self, for: self, at: index) as! ImageCell
-                cell.setImage(image: downloadedImage)
-                return cell
-            case "location":
-                let cell = collectionContext!.dequeueReusableCell(of: MapCell.self, for: self, at: index) as! MapCell
-                if let location = self.item?.coordinates {
-                    cell.setLocation(coordinates: location)
-                }
-                return cell
-            default:
-                let cell = collectionContext!.dequeueReusableCell(of: TypeLabelCell.self, for: self, at: index) as! TypeLabelCell
-                cell.titleLabel.text = ""
-                return cell
-        }
+        cell.collectionView.isScrollEnabled = false
+        
+        
+        
+        //adapter.collectionView?.scrollToItem(at: IndexPath(row: 0, section: 0), at: UICollectionViewScrollPosition.left, animated: false)
+        return cell
     }
     
     func didUpdate(to object: Any) {
         self.item = object as? RestaurantItem
-        self.objects.removeAll()
+        self.mainObjects = nil
+        self.detailObjects = nil
         if let item = self.item {
-            self.objects.append("name")
-            if item.type != nil {
-                self.objects.append("type")
+            self.mainObjects = MainObjects(item: item)
+            self.detailObjects = DetailObjects(item: item)
+            if item.photos.count > 0 {
+                self.detailObjects?.objects.insert("photo", at: 0)
+                self.mainObjects?.objects.append("photo")
             }
-            if item.photo != nil {
-                self.objects.append("photo")
+            if item.coordinates != nil {
+                self.detailObjects?.objects.append("location")
             }
         }
     }
     
-    func didSelectItem(at index: Int) {}
+    func didSelectItem(at index: Int) {
+        
+    }
+    
+    
+    //MARK: IGListAdapterDataSource
+    
+    func objects(for listAdapter: IGListAdapter) -> [IGListDiffable] {
+        if self.item == nil {
+            print("none")
+            return []
+        }
+        if (self.viewController as? MainViewController)?.isDetail ?? false,
+            (viewController as? MainViewController)?.detailItem?.isEqual(toDiffableObject: self.item) ?? false {
+            print("detail")
+            return [self.detailObjects!]
+        }
+        print("main")
+        return [self.mainObjects!]
+    }
+    
+    func listAdapter(_ listAdapter: IGListAdapter, sectionControllerFor object: Any) -> IGListSectionController {
+        let child = RestaurantSmallSectionController()
+        child.parentAdapter = listAdapter
+        child.parent = self
+        return child
+    }
+    
+    func emptyView(for listAdapter: IGListAdapter) -> UIView? {
+        return nil
+    }
     
     //MARK: IGListWorkingRangeDelegate
     
     func listAdapter(_ listAdapter: IGListAdapter, sectionControllerWillEnterWorkingRange sectionController: IGListSectionController) {
-        guard downloadedImage == nil,
-            task == nil,
-            let urlString = urlString,
-            let url = URL(string: urlString)
+        guard tasks.count == 0,
+            let item = self.item,
+            item.photos.count > 0,
+            let section = collectionContext?.section(for: self)
             else { return }
 
         
-        let section = collectionContext?.section(for: self) ?? 0
-        print("Downloading image \(urlString) for section \(section)")
-        
-        task = URLSession.shared.dataTask(with: url) { data, response, err in
-            guard let data = data, let image = UIImage(data: data) else {
-                return print("Error downloading \(urlString): \(err.debugDescription)")
-            }
-            DispatchQueue.main.async {
-                self.downloadedImage = image
-                print("downloaded for \(section)")
-                if let index = self.objects.index(where: { (item) -> Bool in
-                        item == "photo"
-                    }) {
-                    if let cell = self.collectionContext?.cellForItem(at: index, sectionController: self) as? ImageCell {
-                        cell.setImage(image: image)
-                        self.collectionContext?.reload(in: sectionController, at: [index])
+        for photo in item.photos {
+            guard let url = URL(string: photo.url) else {return}
+            guard let forIndex = item.photos.index(where: { (photoItem) -> Bool in
+                    return photo.isEqual(toDiffableObject: photoItem)
+                }) else {return}
+            print("Downloading image \(item.photos[forIndex].url) for section \(section)")
+            
+            let task = URLSession.shared.dataTask(with: url) { data, response, err in
+                guard let photoIndex = item.photos.index(where: { (photoItem) -> Bool in
+                        return photo.isEqual(toDiffableObject: photoItem)
+                    }) else {return}
+                
+                guard let data = data, let image = UIImage(data: data) else {
+                    return print("Error downloading \(item.photos[photoIndex].url): \(err.debugDescription)")
+                }
+                
+                print("got item: \(item.name), photoIndex: \(photoIndex), image: \(image)")
+                
+                RestaurantModel.shared.item(at: section).photos[photoIndex].photo = image
+                if photoIndex == 0 {
+                    DispatchQueue.main.async {
+                        print("downloaded for \(section)")
+                        self.adapter.reloadData(completion: nil)
                     }
                 }
             }
+            self.tasks.append(task)
+            task.resume()
         }
-        task?.resume()
     }
     
     func listAdapter(_ listAdapter: IGListAdapter, sectionControllerDidExitWorkingRange sectionController: IGListSectionController) {}
 }
+
+class Objects {
+    var objects: [String] = []
+    var item: RestaurantItem
+    
+    init(item: RestaurantItem) {
+        self.item = item
+    }
+}
+
+extension Objects: IGListDiffable {
+    func diffIdentifier() -> NSObjectProtocol {
+        return self.item.diffIdentifier()
+    }
+    
+    func isEqual(toDiffableObject object: IGListDiffable?) -> Bool {
+        guard let obj = object as? Objects else {
+            return false
+        }
+        if !obj.item.isEqual(toDiffableObject: self.item) {
+            return false
+        }
+        if obj.objects.count != self.objects.count {
+            return false
+        }
+        for ob in self.objects {
+            if !obj.objects.contains(ob) {
+                return false
+            }
+        }
+        return true
+    }
+}
+
+class MainObjects: Objects {}
+class DetailObjects: Objects {}

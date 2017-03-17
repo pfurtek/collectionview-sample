@@ -15,9 +15,14 @@ import IGListKit
 class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAdapterDataSource, UIScrollViewDelegate {
     
     let locationManager = CLLocationManager()
+    var askedForLocation = false
+    
+    var isDetail = false
+    var detailItem: RestaurantItem?
+    var detailSectionController: RestaurantSectionController?
     
     lazy var adapter: IGListAdapter = {
-        return IGListAdapter(updater: IGListAdapterUpdater(), viewController: self, workingRangeSize: 3)
+        return IGListAdapter(updater: IGListAdapterUpdater(), viewController: self, workingRangeSize: 1)
     }()
     
     let collectionView = IGListCollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
@@ -27,13 +32,26 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAda
         
         setupLocationManager()
         setupCollectionView()
+        
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.view.backgroundColor = UIColor.clear
+        self.automaticallyAdjustsScrollViewInsets = false
+        self.navigationController?.navigationBar.isTranslucent = true
+        
+        
+        self.adapter.scrollViewDelegate = self
 
         // Do any additional setup after loading the view.
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        collectionView.frame = view.bounds
+        var frame = view.bounds
+        frame.size.height -= 64
+        frame.origin.y += 64
+        collectionView.frame = frame
+        collectionView.layoutSubviews()
     }
 
     override func didReceiveMemoryWarning() {
@@ -47,17 +65,24 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAda
         self.locationManager.activityType = .fitness
         self.locationManager.delegate = self
         //self.locationManager.startMonitoringSignificantLocationChanges()
-        self.locationManager.requestLocation()
+        self.askForRestaurants()
     }
     
     func setupCollectionView() {
         view.addSubview(collectionView)
         adapter.collectionView = collectionView
+        //collectionView.backgroundColor = .black
         adapter.dataSource = self
     }
     
+    func askForRestaurants() {
+        self.askedForLocation = true
+        self.locationManager.requestLocation()
+    }
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if locations.count > 0 {            
+        if locations.count > 0, self.askedForLocation {
+            self.askedForLocation = false
             downloadVenues(location: locations.first!)
         }
     }
@@ -87,50 +112,52 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAda
                            let items = groupsDict["items"] as? [Any] {
                             RestaurantModel.shared.removeAll()
                             for item in items {
-                                if let itemDict = item as? [String: Any] {
-                                    if let venue = itemDict["venue"] as? [String: Any] {
-                                       let name = venue["name"] as! String
-                                       let item = RestaurantItem(name: name)
-                                        if let categories = venue["categories"] as? [Any],
-                                           let catDict = categories.first as? [String: Any] {
-                                            item.type = catDict["name"] as? String
+                                if let itemDict = item as? [String: Any],
+                                   let venue = itemDict["venue"] as? [String: Any],
+                                   let name = venue["name"] as? String {
+                                    let item = RestaurantItem(name: name)
+                                    if let categories = venue["categories"] as? [Any],
+                                        let catDict = categories.first as? [String: Any] {
+                                        item.type = catDict["name"] as? String
+                                    }
+                                    if let contact = venue["contact"] as? [String: Any],
+                                        let twitter = contact["twitter"] as? String {
+                                        item.twitter = twitter
+                                    }
+                                    if let rat = venue["rating"] as? Double {
+                                        item.rating = rat
+                                    }
+                                    if let location = venue["location"] as? [String: Any],
+                                        let lat = location["lat"] as? Double,
+                                        let lng = location["lng"] as? Double {
+                                        item.coordinates = RestaurantCoordinate(latitude: lat, longitude: lng)
+                                    }
+                                    if let photos = venue["photos"] as? [String: Any],
+                                       let pGroups = photos["groups"] as? [Any],
+                                       let pGroupsDict = pGroups.first as? [String: Any],
+                                       let pItems = pGroupsDict["items"] as? [[String:Any]] {
+                                        for pItem in pItems {
+                                            if let prefix = pItem["prefix"] as? String,
+                                               let suffix = pItem["suffix"] as? String,
+                                               let height = pItem["height"] as? Int,
+                                               let width = pItem["width"] as? Int {
+                                                let url = prefix + "original" + suffix
+                                                print(url)
+                                                let hPerw = Double(height)/Double(width)
+                                                item.photos.append(RestaurantPhoto(url: url, owner: item))
+                                                item.hPerW = hPerw
+                                            }
                                         }
-                                        if let rat = venue["rating"] as? Double {
-                                            item.rating = rat
-                                        }
-                                        if let location = venue["location"] as? [String: Any],
-                                           let lat = location["lat"] as? Double,
-                                           let lng = location["lng"] as? Double {
-                                            item.coordinates = CLLocationCoordinate2D(latitude: lat, longitude: lng)
-                                        }
-                                        if let photos = venue["photos"] as? [String: Any],
-                                           let count = photos["count"] as? Int,
-                                           let pGroups = photos["groups"] as? [Any],
-                                           count > 0,
-                                           let pGroupsDict = pGroups.first as? [String: Any],
-                                           let pItems = pGroupsDict["items"] as? [Any],
-                                           let pItemsDict = pItems.first as? [String: Any],
-                                           let prefix = pItemsDict["prefix"] as? String,
-                                           let suffix = pItemsDict["suffix"] as? String,
-                                           let height = pItemsDict["height"] as? Int,
-                                           let width = pItemsDict["width"] as? Int {
-                                            //print(pGroups)
-                                            let url = prefix + "original" + suffix
-                                            print(url)
-                                            let hPerw = Double(height)/Double(width)
-                                            item.photo = url
-                                            item.hPerW = hPerw
-                                        }
-                                                    
-                                        //item.photo = "https://unsplash.it/\(414)/\(Int(arc4random_uniform(200)) + 200)"
-                                                    
+                                        item.photos.append(RestaurantPhoto(url: "https://unsplash.it/\(414)/\(Int(arc4random_uniform(200)) + 200)", owner: item))
+                                        item.photos.append(RestaurantPhoto(url: "https://unsplash.it/\(414)/\(Int(arc4random_uniform(200)) + 200)", owner: item))
+                                        
                                         print("+ \(name)")
-                                                    
+                                        
                                         RestaurantModel.shared.add(item: item)
-                                        self.adapter.performUpdates(animated: true, completion: nil)
                                     }
                                 }
                             }
+                            self.adapter.performUpdates(animated: true, completion: nil)
                         }
                     case .failure(let error):
                         print(error)
@@ -138,36 +165,67 @@ class MainViewController: UIViewController, CLLocationManagerDelegate, IGListAda
             }
         
     }
+    
+    func backToMain(_ sender: UIBarButtonItem) {
+        self.isDetail = false
+        self.collectionView.isPagingEnabled = false
+        self.collectionView.isScrollEnabled = true
+        self.navigationItem.leftBarButtonItem = nil
+        
+        if let mySection = self.adapter.sectionController(for: self.detailItem!) as? RestaurantSectionController {
+            print("adapter")
+            
+            var frame = self.view.bounds
+            frame.size.height -= 64
+            frame.origin.y += 64
+            
+            if let smallSection = mySection.adapter.sectionController(for: mySection.detailObjects!) as? RestaurantSmallSectionController {
+                guard let photoCell = smallSection.collectionContext?.cellForItem(at: 0, sectionController: smallSection) as? EmbeddedCollectionViewCell else {return}
+                
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.collectionView.collectionViewLayout.invalidateLayout()
+                    
+                    photoCell.animate(toSmall: true)
+                    
+                    self.collectionView.frame = frame
+                    
+                    mySection.adapter.performUpdates(animated: true, completion: nil)
+                }, completion: { (result) in
+                    mySection.adapter.collectionView!.isScrollEnabled = false
+                    self.navigationController?.navigationBar.topItem?.title = "SnackChat"
+                })
+            }
+        }
+    }
 
 
-    /*
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
+        
     }
-    */
     
     
     // MARK: - IGListAdapterDataSource
     
     func listAdapter(_ listAdapter: IGListAdapter, sectionControllerFor object: Any) -> IGListSectionController {
-        switch object {
+            switch object {
             case is RestaurantItem:
                 let sectionController = RestaurantSectionController()
                 /*IGListStackedSectionController(sectionControllers: [
-                    RestNameSectionController(),
-                    RestTypeSectionController(),
-                    RestPhotoSectionController()
-                    //RestMapSectionController()
-                    ])!*/
-                sectionController.inset = UIEdgeInsets(top: 10, left: 0, bottom: 0, right: 0)
+                 RestNameSectionController(),
+                 RestTypeSectionController(),
+                 RestPhotoSectionController()
+                 //RestMapSectionController()
+                 ])!*/
+                sectionController.inset = UIEdgeInsets(top: 0, left: 0, bottom: 5, right: 0)
                 return sectionController
             default:
                 return RestNameSectionController()
-        }
+            }
     }
 
     func objects(for listAdapter: IGListAdapter) -> [IGListDiffable] {

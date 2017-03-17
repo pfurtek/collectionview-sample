@@ -47,13 +47,13 @@ class MapCell: UICollectionViewCell, MKMapViewDelegate, UIGestureRecognizerDeleg
         mapView.frame = frame
     }
     
-    func setLocation(coordinates: CLLocationCoordinate2D) {
+    func setLocation(coordinates: RestaurantCoordinate) {
         self.mapView.removeAnnotations(self.mapView.annotations)
-        pin.coordinate = coordinates
+        pin.coordinate = coordinates.clCoordinate
         self.mapView.addAnnotation(pin)
         
         let span = MKCoordinateSpanMake(0.003, 0.003)
-        let region = MKCoordinateRegion(center: coordinates, span: span)
+        let region = MKCoordinateRegion(center: coordinates.clCoordinate, span: span)
         self.mapView.setRegion(region, animated: true)
     }
     

@@ -49,9 +49,10 @@ class RestaurantItem {
     var name: String
     var type: String?
     var rating: Double?
-    var photo: String?
+    var twitter: String?
+    var photos: [RestaurantPhoto] = []
     var hPerW: Double?
-    var coordinates: CLLocationCoordinate2D?
+    var coordinates: RestaurantCoordinate?
     
     init(name: String) {
         self.name = name
@@ -76,9 +77,12 @@ extension RestaurantItem: IGListDiffable {
         if obj.rating != self.rating {
             return false
         }
-        if obj.photo != self.photo {
+        if obj.twitter != self.twitter {
             return false
         }
+        /*if obj.photos != self.photos {
+            return false
+        }*/
         if obj.coordinates?.latitude != self.coordinates?.latitude {
             return false
         }
@@ -86,6 +90,70 @@ extension RestaurantItem: IGListDiffable {
             return false
         }
         if obj.hPerW != self.hPerW {
+            return false
+        }
+        return true
+    }
+}
+
+class RestaurantPhoto {
+    var photo: UIImage?
+    var url: String
+    var owner: RestaurantItem
+    
+    init(url: String, owner: RestaurantItem) {
+        self.url = url
+        self.owner = owner
+    }
+}
+
+extension RestaurantPhoto: IGListDiffable {
+    func diffIdentifier() -> NSObjectProtocol {
+        return self.url as NSString
+    }
+    
+    func isEqual(toDiffableObject object: IGListDiffable?) -> Bool {
+        guard let obj = object as? RestaurantPhoto else {
+            return false
+        }
+        if obj.url != self.url {
+            return false
+        }
+        if obj.photo != self.photo {
+            return false
+        }
+        return true
+    }
+}
+
+/*
+ Needed to extend IGListDiffable, but CLLocationCoordinate2D is a struct, not a class
+ */
+class RestaurantCoordinate {
+    var longitude: CLLocationDegrees
+    var latitude: CLLocationDegrees
+    var clCoordinate: CLLocationCoordinate2D
+    
+    init(latitude: CLLocationDegrees, longitude: CLLocationDegrees) {
+        self.latitude = latitude
+        self.longitude = longitude
+        self.clCoordinate = CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+extension RestaurantCoordinate: IGListDiffable {
+    func diffIdentifier() -> NSObjectProtocol {
+        return "\(self.latitude),\(self.longitude)" as NSString
+    }
+    
+    func isEqual(toDiffableObject object: IGListDiffable?) -> Bool {
+        guard let obj = object as? RestaurantCoordinate else {
+            return false
+        }
+        if obj.longitude != self.longitude {
+            return false
+        }
+        if obj.latitude != self.latitude {
             return false
         }
         return true

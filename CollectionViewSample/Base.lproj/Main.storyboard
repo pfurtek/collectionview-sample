@@ -143,16 +143,38 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
                     <navigationItem key="navigationItem" title="SnackChat" id="yDh-jc-O0a">
-                        <barButtonItem key="leftBarButtonItem" systemItem="camera" id="uuH-rx-zcO">
+                        <barButtonItem key="rightBarButtonItem" systemItem="camera" id="uuH-rx-zcO">
+                            <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             <connections>
                                 <segue destination="hPN-ry-TA8" kind="show" id="FBN-Ox-7IY"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <segue destination="95W-YG-Id6" kind="show" identifier="restaurantDetail" id="fIM-AE-uCX"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="bed-hL-irN" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1320" y="1541"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="gMQ-dl-N3R">
+            <objects>
+                <viewController id="95W-YG-Id6" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="VVV-lu-iLN"/>
+                        <viewControllerLayoutGuide type="bottom" id="IBc-Sx-qyJ"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="fb0-ho-pa7">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ndw-Ai-fTo" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2547" y="1705"/>
         </scene>
         <!--Record View Controller-->
         <scene sceneID="2bB-SB-znl">
